@@ -5,7 +5,10 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.jxw.rxjavalearn.R;
+import com.jxw.rxjavalearn.data.DataSource;
 import com.jxw.rxjavalearn.model.Task;
+
+import java.util.List;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
@@ -19,14 +22,14 @@ import io.reactivex.schedulers.Schedulers;
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private CompositeDisposable disposable = new CompositeDisposable();
-    /* package */ Task task;
+    /* package */ List<Task> tasks;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        task = new Task("Take Lunch", false, 5);
+        tasks = DataSource.createTasks();
 
         getTaskObservable().subscribe(new Observer<Task>() {
             @Override
@@ -57,8 +60,12 @@ public class MainActivity extends AppCompatActivity {
                 .create(new ObservableOnSubscribe<Task>() {
                     @Override
                     public void subscribe(ObservableEmitter<Task> emitter) throws Exception {
+                        for(Task task : tasks) {
+                            if (!emitter.isDisposed()) {
+                                emitter.onNext(task);
+                            }
+                        }
                         if (!emitter.isDisposed()) {
-                            emitter.onNext(task);
                             emitter.onComplete();
                         }
                     }
