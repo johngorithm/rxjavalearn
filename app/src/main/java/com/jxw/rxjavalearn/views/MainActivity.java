@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.jxw.rxjavalearn.R;
-import com.jxw.rxjavalearn.data.DataSource;
 import com.jxw.rxjavalearn.model.Task;
 
 import io.reactivex.Observable;
@@ -13,22 +12,20 @@ import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Predicate;
 import io.reactivex.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
-    private Observable<Task> taskObservable;
     private CompositeDisposable disposable = new CompositeDisposable();
+    /* package */ final Task task1 = new Task("Call Mama", false, 10);
+    /* package */ final Task task2 = new Task("Prepare Dinner", true, 1);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        taskObservable = getTaskObservable();
-
-        taskObservable.subscribe(new Observer<Task>() {
+        getTaskObservable().subscribe(new Observer<Task>() {
             @Override
             public void onSubscribe(Disposable d) {
                 disposable.add(d);
@@ -54,14 +51,8 @@ public class MainActivity extends AppCompatActivity {
 
     public Observable<Task> getTaskObservable() {
         return Observable
-                .fromIterable(DataSource.createTasks())
+                .just(task1, task2)
                 .subscribeOn(Schedulers.io())
-                .filter(new Predicate<Task>() {
-                    @Override
-                    public boolean test(Task task) throws Exception {
-                        return task.isComplete();
-                    }
-                })
                 .observeOn(AndroidSchedulers.mainThread());
     }
 
