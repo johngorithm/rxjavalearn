@@ -7,18 +7,20 @@ import android.util.Log;
 import com.jxw.rxjavalearn.R;
 import com.jxw.rxjavalearn.model.Task;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Predicate;
 import io.reactivex.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private CompositeDisposable disposable = new CompositeDisposable();
-    private Task[] list = new Task[5];
+    private List<Task> taskList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,18 +28,18 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
 
-        list[0] = new Task("Call my baby", true, 3);
-        list[1] = new Task("Walk the dog", false, 2);
-        list[2] = new Task("Make my bed", true, 1);
-        list[3] = new Task("Unload the dishwasher", false, 0);
-        list[4] = new Task("Make dinner", true, 5);
+        taskList.add(new Task("Call my baby", true, 3));
+        taskList.add(new Task("Walk the dog", false, 2));
+        taskList.add(new Task("Make my bed", true, 1));
+        taskList.add(new Task("Unload the dishwasher", false, 0));
+        taskList.add(new Task("Make dinner", true, 5));
 
         subscribeToAnObject();
     }
 
     public Observable<Task> getTaskObservable() {
         return Observable
-                .fromArray(list)
+                .fromIterable(taskList)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread());
     }
@@ -47,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onSubscribe(Disposable d) {
                 disposable.add(d);
-                Log.d(TAG, "ON-SUBSCRIBE IS CALLED");
+                Log.d(TAG, "onSubscribe: is called");
             }
 
             @Override
@@ -57,12 +59,12 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onError(Throwable e) {
-                Log.d(TAG, "ON-ERROR IS CALLED");
+                Log.e(TAG, "onError: is called", e);
             }
 
             @Override
             public void onComplete() {
-                Log.d(TAG, "ON-COMPLETE IS CALLED");
+                Log.d(TAG, "onComplete: is called");
             }
         });
     }
