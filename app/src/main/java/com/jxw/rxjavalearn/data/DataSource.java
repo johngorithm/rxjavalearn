@@ -18,4 +18,8 @@ public class DataSource {
 
         return tasks;
     }
+
+    public static Task getTask() {
+        return new Task("Take out the trash", true, 3);
+    }
 }

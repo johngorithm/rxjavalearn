@@ -5,10 +5,10 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.jxw.rxjavalearn.R;
+import com.jxw.rxjavalearn.data.DataSource;
 import com.jxw.rxjavalearn.model.Task;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.Callable;
 
 import io.reactivex.Observable;
 import io.reactivex.Observer;
@@ -20,26 +20,23 @@ import io.reactivex.schedulers.Schedulers;
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private CompositeDisposable disposable = new CompositeDisposable();
-    private List<Task> taskList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
-        taskList.add(new Task("Call my baby", true, 3));
-        taskList.add(new Task("Walk the dog", false, 2));
-        taskList.add(new Task("Make my bed", true, 1));
-        taskList.add(new Task("Unload the dishwasher", false, 0));
-        taskList.add(new Task("Make dinner", true, 5));
-
         subscribeToAnObject();
     }
 
     public Observable<Task> getTaskObservable() {
         return Observable
-                .fromIterable(taskList)
+                .fromCallable(new Callable<Task>() {
+                    @Override
+                    public Task call() throws Exception {
+                        return DataSource.getTask();
+                    }
+                })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread());
     }
